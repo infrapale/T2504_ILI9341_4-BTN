@@ -14,32 +14,85 @@
  ****************************************************/
 
 
+#include <Wire.h>
+#include <WiFi.h>
 #include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include "tftx.h"
 #include "dashboard.h"
 
+#include "main.h"
+#include "io.h"
+#include "menu.h"
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+#include "secrets.h"
+#include "RTClib.h"
+#include "time_func.h"
+#include "atask.h"
+#include "aio_mqtt.h"
+#include "log.h"
+#include "dashboard.h"
+
+
+void print_debug_task(void)
+{
+  atask_print_status(true);
+}
+//                                  123456789012345   ival  next  state  prev  cntr flag  call backup
+atask_st debug_task_handle    =   {"Debug Task     ", 30000,    0,     0,  255,    0,  1,  print_debug_task };
+
+uint32_t  targetTime = 0; 
+
 
 void setup() {
   Serial.begin(9600);
   while(!Serial){}
   //delay(3000);
-  Serial.println("T2504_ILI_4-BTN");  Serial.print(" Compiled: ");
+  Serial.println(APP_NAME);  Serial.print(" Compiled: ");
   Serial.print(__DATE__); Serial.print(" ");
   Serial.print(__TIME__); Serial.println();
   tftx_initialize();
   dashboard_initialize();
   tftx_update_boxes(); 
+
+  Wire.setSDA(PIN_WIRE_SDA);
+  Wire.setSCL(PIN_WIRE_SCL);
+  Wire.begin();
+  //time_begin();
   
-  
+  atask_initialize();
+  atask_add_new(&debug_task_handle);
+  dashboard_start_task();
+   
+  //menu_initialize();        // starting scan and read tasks
+  //aio_mqtt_initialize();    // task is stopped - for debug purpose only
+ 
 }
 
+void setup1()
+{
+  //Watchdog.reset();
+  aio_mqtt_initialize();
+  targetTime = millis() + 100;
+}
 
 void loop(void) 
 {
-
+  atask_run();
 }
+
+// Slow running loop: WiFI an MQTT
+void loop1()
+{
+  if (millis() > targetTime)
+  {
+    //aio_mqtt_stm();
+    targetTime = millis() + 100;
+  }
+}
+
 /*
 unsigned long testFillScreen() {
   unsigned long start = micros();

@@ -19,7 +19,6 @@
 #include <Fonts/FreeSansBold24pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>	
 #include <Fonts/FreeMonoOblique9pt7b.h>
-#include "Font72x53rle.h"
 
 #include <SPI.h>
 #include "font72.h"
@@ -154,7 +153,7 @@ void tftx_draw_box(box_st *boxp)
 
 void tftx_update_boxes(void)
 {
-  for (uint8_t i = 0; i < BOX_NBR_OF; i++)
+  for (uint8_t i = 0; i < BOX_MAX_NBR_OF; i++)
   {
     if (boxp[i])
     {
@@ -169,8 +168,10 @@ void tftx_update_boxes(void)
         //tft.setCursor(menu_box[i].x + 2, menu_box[i].y + 18);
         tft.setTextColor(boxp[i]->txt_color);
         tft.print(boxp[i]->text);
+        Serial.println(boxp[i]->text);
       }
     } 
+    //delay(1000);
   }
   //tft.drawBitmap(80,120,test_bm,32,32,COLOR_WHITE);
   //tftx_draw_box(&box_test);

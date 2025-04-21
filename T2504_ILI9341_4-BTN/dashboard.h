@@ -4,5 +4,7 @@
 
 void dashboard_initialize(void);
 
+void dashboard_start_task(void);
+
 
 #endif

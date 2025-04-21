@@ -21,7 +21,7 @@
 #define COLOR_YELLOW    0xFFE0
 #define COLOR_WHITE     0xFFFF
 
-#define BOX_MAX_NBR_OF  8
+#define BOX_MAX_NBR_OF  16
 
 typedef enum
 {
