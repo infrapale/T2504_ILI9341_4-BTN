@@ -1,4 +1,5 @@
 // https://learn.adafruit.com/adafruit-gfx-graphics-library
+// https://github.com/adafruit/Adafruit-GFX-Library
 
 #include "tftx.h"
 
@@ -18,14 +19,14 @@
 #include <Fonts/FreeSansBold24pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>	
 #include <Fonts/FreeMonoOblique9pt7b.h>
+#include "Font72x53rle.h"
+
 #include <SPI.h>
+#include "font72.h"
 
 #define TFT_WIDTH    160
 #define TFT_HEIGHT   128
-#define MENU_HEIGHT  16
-#define TOP_BOX_HEIGHT 24
-#define MID_BOX_HEIGHT 50
-#define LOW_BOX_HEIGHT 36
+
 
 //Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC,TFT_RST);
@@ -34,15 +35,18 @@ int16_t font_voffs[FONT_NBR_OF] =
 {
   [FONT_STANDARD] = 5,
   [FONT_SANS_9] = 12,
-  [FONT_SANS_12] = 12,
+  [FONT_SANS_12] = 22,
   [FONT_SANS_18] = 28,
   [FONT_SANS_24] = 40,
   [FONT_SANS_BOLD_9] = 12,
-  [FONT_SANS_BOLD_12] = 12,
+  [FONT_SANS_BOLD_12] = 22,
   [FONT_SANS_BOLD_18] = 18,
   [FONT_SANS_BOLD_24] = 24,
+  [FONT_72x53RLE] = 40
 };
-box_st box[BOX_NBR_OF];
+
+
+box_st *boxp[BOX_MAX_NBR_OF];
 
 void tftx_initialize(void)
 {
@@ -66,70 +70,39 @@ void tftx_initialize(void)
   tft.setRotation(3);
   display.width = tft.width();
   display.height = tft.height();
+  display.last_box = -1;
   Serial.printf("Screen size: %d x %d\n", display.width, display.height);
   
 
-  for (uint8_t i = 0; i < BOX_NBR_OF; i++)
+  for (uint8_t i = 0; i < BOX_MAX_NBR_OF; i++)
   {
-    box[i].update = true;
+    boxp[i] = NULL;
   }
-
-  for (uint8_t i = BOX_MENU_1; i <= BOX_MENU_3; i++)
-  {
-    box[i].update     = true;
-    box[i].x          = (i-1) * display.width / 3;
-    box[i].y          = display.height - MENU_HEIGHT;
-    box[i].w          = display.width/3;
-    box[i].h          = MENU_HEIGHT;
-    box[i].frame      = COLOR_YELLOW;
-    box[i].fill       = COLOR_BLUE;
-    box[i].font       = FONT_STANDARD;
-    box[i].txt_color  = COLOR_CYAN;
-  }
-  strcpy(box[BOX_MENU_1].text, "Powr");
-  strcpy(box[BOX_MENU_2].text, "Opt");
-  strcpy(box[BOX_MENU_3].text, "Test");
-
-  box[BOX_TOP].update = true;
-  box[BOX_TOP].x = 0;
-  box[BOX_TOP].y = 0;
-  box[BOX_TOP].w = display.width;
-  box[BOX_TOP].h = TOP_BOX_HEIGHT;
-  box[BOX_TOP].frame = COLOR_WHITE;
-  box[BOX_TOP].fill =  COLOR_BLACK;
-  box[BOX_TOP].font = FONT_SANS_12;
-  box[BOX_TOP].txt_color = COLOR_WHITE;
-  strcpy(box[BOX_TOP].text, "Sending");
-
-  box[BOX_MID].update = true;
-  box[BOX_MID].x = 0;
-  box[BOX_MID].y = box[BOX_TOP].y + box[BOX_TOP].h + 1;
-  box[BOX_MID].w = display.width;
-  box[BOX_MID].h = MID_BOX_HEIGHT;
-  box[BOX_MID].frame = COLOR_YELLOW;
-  box[BOX_MID].fill =  COLOR_BLACK;
-  box[BOX_MID].font = FONT_SANS_24;
-  box[BOX_MID].txt_color = COLOR_YELLOW;
-  strcpy(box[BOX_MID].text, "#1234");
-
-  box[BOX_LOW].update = true;
-  box[BOX_LOW].x = 0;
-  box[BOX_LOW].y = box[BOX_MID].y + box[BOX_MID].h + 1;
-  box[BOX_LOW].w = display.width;
-  box[BOX_LOW].h = LOW_BOX_HEIGHT;
-  box[BOX_LOW].frame = COLOR_CYAN;
-  box[BOX_LOW].fill =  COLOR_RED;
-  box[BOX_LOW].font = FONT_SANS_18;
-  box[BOX_LOW].txt_color = COLOR_BLACK;
-  strcpy(box[BOX_LOW].text, "Err 42");
-
-
 
   //tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
   Serial.println("Initialized");
   tft.fillScreen(COLOR_BLACK);
   tft.setRotation(3);
   
+}
+uint16_t tftx_get_width(void)
+{
+  return display.width;
+}
+
+uint16_t tftx_get_height(void)
+{
+  return display.height;
+}
+
+
+void tftx_add_box(box_st *box_ptr)
+{
+  if (display.last_box < 0) display.last_box = 0; 
+  if (display.last_box < BOX_MAX_NBR_OF)
+  {
+    boxp[display.last_box++] = box_ptr;
+  }
 }
 
 void tftx_set_font(font_et font)
@@ -163,6 +136,10 @@ void tftx_set_font(font_et font)
       case FONT_SANS_BOLD_24:
         tft.setFont(&FreeSansBold24pt7b);
         break;
+      case FONT_72x53RLE:
+        tft.setFont(&FreeSansBold9pt7b);
+        //tft.setFont(&chrtbl_f72);
+        //tft.drawBitmap( )
       default:
         tft.setFont(&FreeSansBold9pt7b);
         break;
@@ -179,16 +156,22 @@ void tftx_update_boxes(void)
 {
   for (uint8_t i = 0; i < BOX_NBR_OF; i++)
   {
-      if (box[i].update)
+    if (boxp[i])
+    {
+      Serial.println(boxp[i]->text);
+      if (boxp[i]->update)
       {
-        tftx_draw_box(&box[i]);
-        tft.setTextWrap(box[i].txt_wrap);
-        tft.setCursor(box[i].x + 2, box[i].y + font_voffs[box[i].font]);
+        tftx_draw_box(boxp[i]);
+        tft.setTextWrap(boxp[i]->txt_wrap);
+        tftx_set_font(boxp[i]->font);
+        tft.setTextSize(boxp[i]->txt_size);
+        tft.setCursor(boxp[i]->x + 2, boxp[i]->y + font_voffs[boxp[i]->font] * (int16_t)boxp[i]->txt_size);
         //tft.setCursor(menu_box[i].x + 2, menu_box[i].y + 18);
-        tftx_set_font(box[i].font);
-        tft.setTextColor(box[i].txt_color);
-        tft.print(box[i].text);
+        tft.setTextColor(boxp[i]->txt_color);
+        tft.print(boxp[i]->text);
       }
+    } 
   }
+  //tft.drawBitmap(80,120,test_bm,32,32,COLOR_WHITE);
   //tftx_draw_box(&box_test);
 }

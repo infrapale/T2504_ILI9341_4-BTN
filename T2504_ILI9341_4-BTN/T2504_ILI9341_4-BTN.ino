@@ -18,6 +18,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include "tftx.h"
+#include "dashboard.h"
 
 
 void setup() {
@@ -28,6 +29,7 @@ void setup() {
   Serial.print(__DATE__); Serial.print(" ");
   Serial.print(__TIME__); Serial.println();
   tftx_initialize();
+  dashboard_initialize();
   tftx_update_boxes(); 
   
   

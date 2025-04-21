@@ -21,6 +21,8 @@
 #define COLOR_YELLOW    0xFFE0
 #define COLOR_WHITE     0xFFFF
 
+#define BOX_MAX_NBR_OF  8
+
 typedef enum
 {
   FONT_STANDARD = 0,
@@ -32,6 +34,7 @@ typedef enum
   FONT_SANS_BOLD_12,
   FONT_SANS_BOLD_18,
   FONT_SANS_BOLD_24,
+  FONT_72x53RLE,
   FONT_NBR_OF
 } font_et;
 
@@ -49,8 +52,9 @@ typedef enum
 
 typedef struct
 {
-  uint16_t width;
-  uint16_t height;
+  uint16_t  width;
+  uint16_t  height;
+  int8_t    last_box;
 } display_st;
 
 typedef struct
@@ -65,13 +69,20 @@ typedef struct
   char text[80];
   font_et font;
   uint16_t txt_color;
+  uint16_t txt_size;
   bool    txt_wrap;
 } box_st;
 
 void tftx_initialize(void);
 
+void tftx_add_box(box_st *box_ptr);
+
 void tftx_draw_box(box_st *boxp);
 
 void tftx_update_boxes(void);
+
+uint16_t tftx_get_width(void);
+
+uint16_t tftx_get_height(void);
 
 #endif
