@@ -28,7 +28,6 @@ typedef struct
 dashboard_ctrl_st dashboard_ctrl = {false, true, false, AIO_SUBS_TRE_ID_TEMP, 0};
 
 
-/*
 char unit_label[UNIT_NBR_OF][UNIT_LABEL_LEN] =
 {
   // 012345678
@@ -50,19 +49,14 @@ char measure_label[UNIT_NBR_OF][MEASURE_LABEL_LEN] =
     "LDR Value      ",
     "Voltage        "
 };
-*/
+
 
 void dashboard_update_task(void);
 
 //                                          123456789012345   ival  next  state  prev  cntr flag  call backup
 atask_st dashboard_task_handle        =   {"Dashboard SM   ", 1000,   0,     0,  255,    0,   1,  dashboard_update_task };
 
-
-void dashboard_set_text(box_st *box_ptr, char *txt_ptr)
-{
-    strcpy(box_ptr->text, txt_ptr);
-}
-
+extern value_st subs_data[AIO_SUBS_NBR_OF];
 
 void dashboard_start_task(void)
 {
@@ -80,10 +74,10 @@ void dashboard_initialize(void)
     menu_box[i].y          = tftx_get_height() - BOX_HEIGHT_MENU;
     menu_box[i].w          = tftx_get_width()/3;
     menu_box[i].h          = BOX_HEIGHT_MENU;
-    menu_box[i].frame      = COLOR_YELLOW;
-    menu_box[i].fill       = COLOR_BLUE;
+    menu_box[i].frame      = COLOR_GREY;
+    menu_box[i].fill       = COLOR_TEAL;
     menu_box[i].font       = FONT_SANS_12;
-    menu_box[i].txt_color  = COLOR_CYAN;
+    menu_box[i].txt_color  = COLOR_WHITE;
     menu_box[i].txt_size   = 1;
     tftx_add_box(&menu_box[i]);
   }
@@ -98,16 +92,22 @@ void dashboard_initialize(void)
     row_box[i].y          = i*BOX_HEIGHT_ROW ;
     row_box[i].w          = tftx_get_width();
     row_box[i].h          = BOX_HEIGHT_ROW ;
-    row_box[i].frame      = COLOR_YELLOW;
+    row_box[i].frame      = COLOR_GREY;
     row_box[i].fill       = COLOR_BLUE;
     row_box[i].font       = FONT_SANS_12;
-    row_box[i].txt_color  = COLOR_CYAN;
+    row_box[i].txt_color  = COLOR_WHITE;
     row_box[i].txt_size   = 1;
     sprintf(txt,"Row %d",i);
     strcpy(row_box[i].text, txt);
     tftx_add_box(&row_box[i]);
   }
   row_box[ROW_BOX_NBR_OF -1].update = false;
+  row_box[0].frame      = COLOR_GREY;
+  row_box[0].fill       = COLOR_DARK_RED;
+  row_box[0].txt_color  = COLOR_WHITE;
+  row_box[1].fill       = COLOR_DARK_RED;
+  row_box[6].fill       = COLOR_DARK_RED;
+
 
   mid_box.update = true;
   mid_box.x = 0;
@@ -115,17 +115,23 @@ void dashboard_initialize(void)
   mid_box.w = tftx_get_width();
   mid_box.h = row_box[0].h * 4;
   mid_box.frame = COLOR_YELLOW;
-  mid_box.fill =  COLOR_BLACK;
+  mid_box.fill =  COLOR_DARK_GREY;
   mid_box.font = FONT_SANS_24;
   mid_box.txt_color = COLOR_YELLOW;
   mid_box.txt_size = 2;
   strcpy(mid_box.text, " 12:34");
-  tftx_add_box(&mid_box);
-  
-  
-
+  tftx_add_box(&mid_box); 
 }
 
+void dashboard_set_menu_label(char *label)
+{
+    tftx_set_text(&row_box[6], label);
+}
+
+void dashboard_set_menu_text(uint8_t mindx, char *label)
+{
+    tftx_set_text(&menu_box[mindx], label);
+}
 void dashboard_big_time(void)
 {
     static uint8_t prev_minute = 99;
@@ -139,8 +145,7 @@ void dashboard_big_time(void)
         time_str += ":";
         sprintf(s1,"%02d",now->minute());
         time_str += s1;
-        time_str.toCharArray(mid_box.text, TXT_LEN);
-        mid_box.update= true;
+        tftx_set_string(&mid_box,&time_str);
     }
 }
 
@@ -148,27 +153,26 @@ void dashboard_big_time(void)
 void dashboard_show_info(void)
 {
     char txt[40];
-    //dashboard_set_text(&row_box[0], (*char)APP_NAME);
+    //tftx_set_text(&row_box[0], (*char)APP_NAME);
     sprintf(txt, "%s", APP_NAME);
-    dashboard_set_text(&row_box[0], txt);
+    tftx_set_text(&row_box[0], txt);
     sprintf(txt, "%s %s", __DATE__, __TIME__);
-    dashboard_set_text(&row_box[1], txt); 
+    tftx_set_text(&row_box[1], txt); 
 }
 
-/*
+
 void dashboard_show_common(void)
 {
-    String time_str;
+    String Str;
     if (!dashboard_ctrl.show_sensor_value)  
     {
-        strcpy(db_box[BOX_ROW_1].txt, MAIN_TITLE);
-        dashboard_draw_box(BOX_ROW_1);
-        time_to_string(&time_str);
-        time_str.toCharArray(db_box[BOX_ROW_2].txt, TXT_LEN);
-        dashboard_draw_box(BOX_ROW_2);
+        Str = MAIN_TITLE;
+        tftx_set_string(&row_box[0],&Str);
+        time_to_string(&Str);
+        tftx_set_string(&row_box[1],&Str);
     }
 }
-*/
+
 
 void dashboard_update_task(void)
 {
@@ -184,14 +188,13 @@ void dashboard_update_task(void)
             dashboard_task_handle.state++;
             break;
         case 1:                
-            //dashboard_show_common();
-            //dashboard_big_time();
+            dashboard_show_common();
+            dashboard_big_time();
             dashboard_ctrl.force_show_big_time = false;
             dashboard_task_handle.state++;
             break;
         case 2:
             update_box = false;
-            /*
             i = (uint8_t)dashboard_ctrl.sensor_indx;
             if (millis() > subs_data[i].show_next_ms)
             {
@@ -200,27 +203,18 @@ void dashboard_update_task(void)
                     dashboard_ctrl.show_sensor_value = true;
                     Serial.print("aio index: "); Serial.print(i); 
                     Serial.println(" = Updated ");
-                    //subs_data[i].updated = false;
                     Str = subs_data[i].location;
-                    Str += " ";
-                    Str.toCharArray(db_box[BOX_ROW_1].txt,40);
+                    tftx_set_string(&row_box[1],&Str);
 
                     Str = measure_label[subs_data[i].unit_index];
                     Str += " ";
-                    Str += unit_label[subs_data[i].unit_index];
-                    Str.toCharArray(db_box[BOX_ROW_2].txt, TXT_LEN);
+                    Str = unit_label[subs_data[i].unit_index];
+                    tftx_set_string(&row_box[6],&Str);
 
                     Str = String(subs_data[i].value);
                     Serial.println(Str);
-                    Str.toCharArray(db_box[BOX_MID_LARGE].txt,6);
+                    tftx_set_string(&mid_box,&Str);
                     update_box = true;
-                    if (update_box)
-                    {
-                        dashboard_draw_box(BOX_UPPER_LARGE);
-                        dashboard_draw_box(BOX_MID_LARGE);
-                        dashboard_draw_box(BOX_ROW_1);
-                        dashboard_draw_box(BOX_ROW_2);
-                    }
                 }
                 subs_data[i].show_next_ms = millis() + subs_data[i].show_interval_ms;
             }
@@ -237,7 +231,6 @@ void dashboard_update_task(void)
             {
                dashboard_task_handle.state = 1;
             }
-            */
             break;  
         case 3:
             if ((millis() > next_step_ms) || dashboard_ctrl.fast_forward)
@@ -251,8 +244,30 @@ void dashboard_update_task(void)
             break;
     }
     //Serial.printf("db %d -> %d\n", dashboard_task_handle.prev_state, dashboard_task_handle.state);
+    tftx_update_boxes();
 }
 
+void dashboard_next_sensor(void)
+{
+/*    dashboard_ctrl.menu_sensor_indx++;
+    if(dashboard_ctrl.menu_sensor_indx >= AIO_SUBS_NBR_OF) dashboard_ctrl.menu_sensor_indx = AIO_SUBS_TRE_ID_TEMP;
+    subs_data[dashboard_ctrl.menu_sensor_indx].show_next_ms = 0              ;
+    dashboard_ctrl.sensor_indx = dashboard_ctrl.menu_sensor_indx;
+    Serial.printf("dashboard_ctrl.menu_sensor_indx=%d\n",dashboard_ctrl.menu_sensor_indx);
+    dashboard_ctrl.fast_forward = true;
+*/
+}
+
+void dashboard_previous_sensor(void)
+{
+/*    if(dashboard_ctrl.menu_sensor_indx <= 1 ) dashboard_ctrl.menu_sensor_indx = AIO_SUBS_NBR_OF -1;
+    else dashboard_ctrl.menu_sensor_indx--;
+    subs_data[dashboard_ctrl.menu_sensor_indx].show_next_ms = 0;
+    dashboard_ctrl.sensor_indx = dashboard_ctrl.menu_sensor_indx;
+    Serial.printf("dashboard_ctrl.menu_sensor_indx=%d\n",dashboard_ctrl.menu_sensor_indx);
+    dashboard_ctrl.fast_forward = true;
+*/    
+}
 
 
 

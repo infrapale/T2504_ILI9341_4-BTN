@@ -22,6 +22,7 @@
 
 #include <SPI.h>
 #include "font72.h"
+#include "main.h"
 
 #define TFT_WIDTH    160
 #define TFT_HEIGHT   128
@@ -157,22 +158,35 @@ void tftx_update_boxes(void)
   {
     if (boxp[i])
     {
-      Serial.println(boxp[i]->text);
       if (boxp[i]->update)
       {
+        boxp[i]->update = false;
         tftx_draw_box(boxp[i]);
         tft.setTextWrap(boxp[i]->txt_wrap);
         tftx_set_font(boxp[i]->font);
         tft.setTextSize(boxp[i]->txt_size);
         tft.setCursor(boxp[i]->x + 2, boxp[i]->y + font_voffs[boxp[i]->font] * (int16_t)boxp[i]->txt_size);
-        //tft.setCursor(menu_box[i].x + 2, menu_box[i].y + 18);
         tft.setTextColor(boxp[i]->txt_color);
         tft.print(boxp[i]->text);
-        Serial.println(boxp[i]->text);
+        //Serial.println(boxp[i]->text);
       }
     } 
-    //delay(1000);
   }
   //tft.drawBitmap(80,120,test_bm,32,32,COLOR_WHITE);
   //tftx_draw_box(&box_test);
 }
+
+void tftx_set_text(box_st *box_ptr, char *txt_ptr)
+{
+    strcpy(box_ptr->text, txt_ptr);
+    box_ptr->update = true;
+}
+
+void tftx_set_string(box_st *box_ptr, String *StrPtr)
+{
+    char txt[TXT_LEN];
+    StrPtr->toCharArray(txt, TXT_LEN);
+    strcpy(box_ptr->text, txt);
+    box_ptr->update = true;
+}
+

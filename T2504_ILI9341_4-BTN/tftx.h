@@ -12,6 +12,8 @@
 #define TFT_RST   14
 #define TFT_LED   10 
 
+// 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+// R  R  R  R  R  G   G  G  G  G  G  B  B  B  B  B
 #define COLOR_BLACK     0x0000
 #define COLOR_BLUE      0x001F
 #define COLOR_RED       0xF800
@@ -20,6 +22,16 @@
 #define COLOR_MAGENTA   0xF81F
 #define COLOR_YELLOW    0xFFE0
 #define COLOR_WHITE     0xFFFF
+
+#define COLOR_PINK      ((0x0F << 11) | (0x0F << 6) | (0x0F))
+#define COLOR_GREY      ((0x03 << 11) | (0x04 << 6) | (0x04))
+#define COLOR_DARK_GREY ((0x02 << 11) | (0x03 << 6) | (0x03))
+#define COLOR_TEAL      ((0x00 << 11) | (0x10 << 6) | (0x10))
+#define COLOR_DARK_RED  ((0x13UL << 11) | (0x00UL << 6) | (0x00UL))
+#define COLOR_DARK_BLUE ((0x00 << 11) | (0x00 << 6) | (0x0F))
+
+
+
 
 #define BOX_MAX_NBR_OF  16
 
@@ -76,6 +88,10 @@ typedef struct
 void tftx_initialize(void);
 
 void tftx_add_box(box_st *box_ptr);
+
+void tftx_set_text(box_st *box_ptr, char *txt_ptr);
+
+void tftx_set_string(box_st *box_ptr, String *StrPtr);
 
 void tftx_draw_box(box_st *boxp);
 

@@ -4,10 +4,9 @@
 #include "atask.h"
 #include "BtnPinOnOff.h"
 #include "dashboard.h"
-
+#include "tftx.h"
 #define NBR_MENU_KEYS  4
-/*
-extern TFT_eSPI tft;
+
 
 void dummy_cb()
 {
@@ -115,17 +114,14 @@ void menu_read_machine(void)
 void menu_draw(void)
 {
 
-    tft.setTextSize(1);
-    tft.setTextColor(TFT_WHITE, TFT_DARKCYAN, false);
-    tft.fillRect(menu_box[0].x_pos, menu_box[0].y_pos, menu_box[0].width, menu_box[0].height, TFT_DARKCYAN);
-    tft.drawString( menu[menu_ctrl.active].row_label, menu_box[0].x_pos+4, menu_box[0].y_pos, 2);
+    //dashboard_set_menu_label(char *label);
+    //dashboard_set_menu_text(uint8_t mindx, char *label);
 
-    tft.setTextSize(1);
-    tft.setTextColor(TFT_WHITE, TFT_DARKCYAN, false);
+    dashboard_set_menu_label(menu[menu_ctrl.active].row_label);
+
     for (uint8_t i = 1; i <= 3; i++)
     {
-        tft.fillRoundRect(menu_box[i].x_pos, menu_box[i].y_pos, menu_box[i].width, menu_box[i].height, 5, TFT_DARKCYAN);
-        tft.drawString( menu[menu_ctrl.active].menu_item[i].label, menu_box[i].x_pos+4, menu_box[i].y_pos+4, 4);
+        dashboard_set_menu_text(i-1, menu[menu_ctrl.active].menu_item[i].label);
     }
 
 }
@@ -159,5 +155,5 @@ void menu_btn_pressed(char pressed)
         menu_ctrl.active = menu[menu_ctrl.active].menu_item[bindx].next;
         menu_draw();
     }
+
 }
-*/

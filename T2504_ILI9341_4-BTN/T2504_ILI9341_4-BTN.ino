@@ -60,14 +60,14 @@ void setup() {
   Wire.setSDA(PIN_WIRE_SDA);
   Wire.setSCL(PIN_WIRE_SCL);
   Wire.begin();
-  //time_begin();
+  time_begin();
   
   atask_initialize();
   atask_add_new(&debug_task_handle);
   dashboard_start_task();
-   
-  //menu_initialize();        // starting scan and read tasks
-  //aio_mqtt_initialize();    // task is stopped - for debug purpose only
+
+  menu_initialize();        // starting scan and read tasks
+  aio_mqtt_initialize();    // task is stopped - for debug purpose only
  
 }
 
@@ -88,7 +88,7 @@ void loop1()
 {
   if (millis() > targetTime)
   {
-    //aio_mqtt_stm();
+    aio_mqtt_stm();
     targetTime = millis() + 100;
   }
 }
