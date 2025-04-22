@@ -23,12 +23,13 @@
 #define COLOR_YELLOW    0xFFE0
 #define COLOR_WHITE     0xFFFF
 
-#define COLOR_PINK      ((0x0F << 11) | (0x0F << 6) | (0x0F))
-#define COLOR_GREY      ((0x03 << 11) | (0x04 << 6) | (0x04))
-#define COLOR_DARK_GREY ((0x02 << 11) | (0x03 << 6) | (0x03))
-#define COLOR_TEAL      ((0x00 << 11) | (0x10 << 6) | (0x10))
-#define COLOR_DARK_RED  ((0x13UL << 11) | (0x00UL << 6) | (0x00UL))
-#define COLOR_DARK_BLUE ((0x00 << 11) | (0x00 << 6) | (0x0F))
+#define COLOR_PINK      ((0x0F << 11) | (0x0F << 5) | (0x0F))
+#define COLOR_GREY      ((0x03 << 11) | (0x04 << 5) | (0x04))
+#define COLOR_DARK_GREY ((0x02 << 11) | (0x03 << 5) | (0x03))
+#define COLOR_TEAL      ((0x00 << 11) | (0x10 << 5) | (0x10))
+#define COLOR_DARK_RED  ((0x13UL << 11) | (0x00UL << 5) | (0x00UL))
+#define COLOR_DARK_RED2 ((0x0CUL << 11) | (0x00UL << 5) | (0x00UL))
+#define COLOR_DARK_BLUE ((0x00 << 11) | (0x00 << 5) | (0x0F))
 
 
 

@@ -70,9 +70,9 @@ void dashboard_initialize(void)
   for (uint8_t i = 0; i < MENU_BOX_NBR_OF; i++)
   {
     menu_box[i].update     = true;
-    menu_box[i].x          = i * tftx_get_width() / 3;
+    menu_box[i].x          = i * tftx_get_width() / MENU_BOX_NBR_OF;
     menu_box[i].y          = tftx_get_height() - BOX_HEIGHT_MENU;
-    menu_box[i].w          = tftx_get_width()/3;
+    menu_box[i].w          = tftx_get_width()/MENU_BOX_NBR_OF;
     menu_box[i].h          = BOX_HEIGHT_MENU;
     menu_box[i].frame      = COLOR_GREY;
     menu_box[i].fill       = COLOR_TEAL;
@@ -81,10 +81,10 @@ void dashboard_initialize(void)
     menu_box[i].txt_size   = 1;
     tftx_add_box(&menu_box[i]);
   }
-  strcpy(menu_box[0].text, "Powr");
-  strcpy(menu_box[1].text, "Opt");
-  strcpy(menu_box[2].text, "Test");
-
+  strcpy(menu_box[0].text, "Menu0");
+  strcpy(menu_box[1].text, "Menu1");
+  strcpy(menu_box[2].text, "Menu2");
+  
   for (uint8_t i = 0; i < ROW_BOX_NBR_OF; i++)
   {
     row_box[i].update     = true;
@@ -103,10 +103,12 @@ void dashboard_initialize(void)
   }
   row_box[ROW_BOX_NBR_OF -1].update = false;
   row_box[0].frame      = COLOR_GREY;
-  row_box[0].fill       = COLOR_DARK_RED;
+  row_box[0].fill       = COLOR_DARK_RED2;
   row_box[0].txt_color  = COLOR_WHITE;
   row_box[1].fill       = COLOR_DARK_RED;
   row_box[6].fill       = COLOR_DARK_RED;
+  sprintf(txt, "%s", APP_NAME);
+  tftx_set_text(&row_box[0], txt);
 
 
   mid_box.update = true;
@@ -153,7 +155,6 @@ void dashboard_big_time(void)
 void dashboard_show_info(void)
 {
     char txt[40];
-    //tftx_set_text(&row_box[0], (*char)APP_NAME);
     sprintf(txt, "%s", APP_NAME);
     tftx_set_text(&row_box[0], txt);
     sprintf(txt, "%s %s", __DATE__, __TIME__);

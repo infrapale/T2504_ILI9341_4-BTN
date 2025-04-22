@@ -62,14 +62,6 @@ menu_row_st menu[MENU_NBR_OF] =
   }
 };
 
-menu_box_st menu_box[4] =
-{
-    {   5, 180, 312, 16, NULL },
-    {   5, 200, 100, 32, NULL },
-    { 110, 200, 100, 32, NULL },
-    { 216, 200, 100, 32, NULL},  
-};
-
 menu_ctrl_st menu_ctrl = {ATASK_NOT_DEFINED,  MENU_MAIN};
 
 BtnPinOnOff  menu_btn[NBR_MENU_KEYS];
@@ -113,10 +105,6 @@ void menu_read_machine(void)
 
 void menu_draw(void)
 {
-
-    //dashboard_set_menu_label(char *label);
-    //dashboard_set_menu_text(uint8_t mindx, char *label);
-
     dashboard_set_menu_label(menu[menu_ctrl.active].row_label);
 
     for (uint8_t i = 1; i <= 3; i++)
@@ -155,5 +143,4 @@ void menu_btn_pressed(char pressed)
         menu_ctrl.active = menu[menu_ctrl.active].menu_item[bindx].next;
         menu_draw();
     }
-
 }

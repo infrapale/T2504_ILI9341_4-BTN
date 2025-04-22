@@ -6,15 +6,6 @@
 
 typedef struct
 {
-    uint16_t x_pos;
-    uint16_t y_pos;
-    uint16_t width;
-    uint16_t height;
-    char     *txt;
-} menu_box_st;
-
-typedef struct
-{
     uint8_t atask;
     uint8_t active;
 } menu_ctrl_st;

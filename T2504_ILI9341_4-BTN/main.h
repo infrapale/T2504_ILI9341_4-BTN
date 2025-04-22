@@ -19,6 +19,7 @@
 #define APP_NAME   "T2504_ILI9341_4-BTN"
 #define MAIN_TITLE "Villa Astrid Console"
 
+
 typedef enum 
 {
   AIO_PUBL_VA_HOME_MODE = 0,
