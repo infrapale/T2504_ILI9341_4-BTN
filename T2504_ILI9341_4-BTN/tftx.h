@@ -1,16 +1,20 @@
 #ifndef __TFTX_H__
 #define __TFTX_H__
 
-#include <Arduino.h>
 
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library
-#include <SPI.h>
+#define ST7735    7735
+#define ILI9341   9341
+#define TFT_TYPE  ILI9341
+
+
+#include <Arduino.h>
 
 #define TFT_DC    15
 #define TFT_CS    9
 #define TFT_RST   14
 #define TFT_LED   10 
+
+#define TXT_LEN   40
 
 // 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
 // R  R  R  R  R  G   G  G  G  G  G  B  B  B  B  B
@@ -32,8 +36,6 @@
 #define COLOR_DARK_BLUE ((0x00 << 11) | (0x00 << 5) | (0x0F))
 
 
-
-
 #define BOX_MAX_NBR_OF  16
 
 typedef enum
@@ -51,23 +53,12 @@ typedef enum
   FONT_NBR_OF
 } font_et;
 
-typedef enum 
-{
-  BOX_FULL_SCREEN = 0,
-  BOX_MENU_1,
-  BOX_MENU_2,
-  BOX_MENU_3,
-  BOX_TOP,
-  BOX_MID,
-  BOX_LOW,
-  BOX_NBR_OF
-} box_et;
-
 typedef struct
 {
   uint16_t  width;
   uint16_t  height;
   int8_t    last_box;
+  uint32_t  tft_type;
 } display_st;
 
 typedef struct
@@ -101,5 +92,8 @@ void tftx_update_boxes(void);
 uint16_t tftx_get_width(void);
 
 uint16_t tftx_get_height(void);
+
+uint32_t tftx_get_tft_type(void);
+
 
 #endif

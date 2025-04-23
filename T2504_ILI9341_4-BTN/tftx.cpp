@@ -1,13 +1,63 @@
-// https://learn.adafruit.com/adafruit-gfx-graphics-library
-// https://github.com/adafruit/Adafruit-GFX-Library
+/******************************************************************************
+    tftx.cpp
+    Tftx is a helper module on top of the Adafruit_GFX library. This version is 
+    still a plain c-module but I am considering to convert the code into a class 
+    library.
+    The tftx helper divides the display into boxes. Each box has defined a dimension 
+    and position. Also colors are defined for text, frame and fill. The boxes can be 
+    placed on top of each other. The visibility and redraw is controlled by a 
+    "updated" tag. Currently this helper does not support graphics but let's.
+
+*******************************************************************************
+    https://learn.adafruit.com/adafruit-gfx-graphics-library
+    https://github.com/adafruit/Adafruit-GFX-Library
+*******************************************************************************
+An example how the display can be divided
+
+  Full display      Rows              Menu                Large mid area
+  ---------------   ---------------
+  |             |   |             |
+  |             |   ---------------                       --------------- 
+  |             |   |             |                       |             |
+  |             |   ---------------                       |             |
+  |             |   |             |                       |             |
+  |             |   ---------------   ---------------     --------------- 
+  |             |   |             |   |    |    |   |
+  ---------------   ---------------   ---------------
+
+
+*******************************************************************************
+    The application structure
+
+    -----------------------
+    |  main ino           |
+    |          -----------|
+    |          |  menu    |
+    -----------------------
+    |  dashboard          |
+    -----------------------
+    |  tftx               |
+    -----------------------
+    |  Adafruit_GFX       |
+    -----------------------
+    |  Adafruit_ILI9341   |
+    -----------------------
+
+ *******************************************************************************/
+
+
 
 #include "tftx.h"
-
 #include <Arduino.h>
-
 #include <Adafruit_GFX.h>    // Core graphics library
-//#include <Adafruit_ST7735.h> // Hardware-specific library
-#include <Adafruit_ILI9341.h> // Hardware-specific library
+#if TFT_TYPE == ILI9341
+  #include <Adafruit_ILI9341.h> // Hardware-specific library
+#elif TFT_TYPE == ST7735
+  #include <Adafruit_ST7735.h> // Hardware-specific library
+#else
+  #error "TFT display is not defined"
+#endif
+ 
 #include <Fonts/FreeMonoBoldOblique12pt7b.h>
 #include <Fonts/FreeSerif9pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
@@ -19,17 +69,16 @@
 #include <Fonts/FreeSansBold24pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>	
 #include <Fonts/FreeMonoOblique9pt7b.h>
-
 #include <SPI.h>
 #include "font72.h"
 #include "main.h"
 
-#define TFT_WIDTH    160
-#define TFT_HEIGHT   128
+#if TFT_TYPE == ILI9341
+  Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC,TFT_RST);
+#elif TFT_TYPE == ST7735
+  Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
+#endif
 
-
-//Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC,TFT_RST);
 display_st display;
 int16_t font_voffs[FONT_NBR_OF] =
 {
@@ -55,6 +104,7 @@ void tftx_initialize(void)
 
   tft.begin();
 
+  #if TFT_TYPE == ILI9341
   // read diagnostics (optional but can help debug problems)
   uint8_t x = tft.readcommand8(ILI9341_RDMODE);
   Serial.print("Display Power Mode: 0x"); Serial.println(x, HEX);
@@ -65,12 +115,14 @@ void tftx_initialize(void)
   x = tft.readcommand8(ILI9341_RDIMGFMT);
   Serial.print("Image Format: 0x"); Serial.println(x, HEX);
   x = tft.readcommand8(ILI9341_RDSELFDIAG);
-  Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); 
+  Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX);
+  #endif 
 
   tft.setRotation(3);
   display.width = tft.width();
   display.height = tft.height();
   display.last_box = -1;
+  display.tft_type = TFT_TYPE;
   Serial.printf("Screen size: %d x %d\n", display.width, display.height);
   
 
@@ -95,6 +147,10 @@ uint16_t tftx_get_height(void)
   return display.height;
 }
 
+uint32_t tftx_get_tft_type(void)
+{
+  return display.tft_type;
+}
 
 void tftx_add_box(box_st *box_ptr)
 {

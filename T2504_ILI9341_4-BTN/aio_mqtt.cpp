@@ -12,17 +12,16 @@
 #define AIO_KEY         IO_KEY
 #define AIO_PUBLISH_INTERVAL_ms  60000
 
+#include <TimeLib.h>
+#include <WiFi.h>
 #include "main.h"
 
 #include <stdint.h>
 #include "stdio.h"
 #include "pico/stdlib.h"
-//#include "hardware/uart.h"
 #include "secrets.h"
-#include <WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
-#include <TimeLib.h>
 #include "aio_mqtt.h"
 #include "atask.h"
 #include "time_func.h"
@@ -64,11 +63,16 @@ Adafruit_MQTT_Client aio_mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME,
 Adafruit_MQTT_Publish villa_astrid_home_mode    = Adafruit_MQTT_Publish(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.astrid-mode");
 
 // Subscribe Feeds
-Adafruit_MQTT_Subscribe villa_astrid_od_temp    = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.ulko-temp");
+Adafruit_MQTT_Subscribe villa_astrid_od_temp    = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.od-temp");
 Adafruit_MQTT_Subscribe villa_astrid_od_hum     = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.ulko-hum");
+Adafruit_MQTT_Subscribe villa_astrid_od_lux     = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.od-lux");
+Adafruit_MQTT_Subscribe dock_water_temp         = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.dock-temp-water");
+
 Adafruit_MQTT_Subscribe tre_id_temp_feed        = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/home-tampere.tampere-indoor-temperature");
 Adafruit_MQTT_Subscribe tre_id_hum_feed         = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/home-tampere.tre-indoor-humidity");
+
 Adafruit_MQTT_Subscribe lilla_astrid_id_temp    = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/lillaastrid.studio-temp");
+
 Adafruit_MQTT_Subscribe ruuvi_e6_temp           = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.ruuvi-e6");
 Adafruit_MQTT_Subscribe ruuvi_ea_temp           = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.ruuvi-ea");
 Adafruit_MQTT_Subscribe ruuvi_ed_temp           = Adafruit_MQTT_Subscribe(&aio_mqtt, AIO_USERNAME "/feeds/villaastrid.ruuvi-ed");
@@ -83,15 +87,17 @@ Adafruit_MQTT_Publish *aio_publ[AIO_PUBL_NBR_OF] =
 
 value_st subs_data[AIO_SUBS_NBR_OF]
 {  //                                                     1234567890123456789
-  [AIO_SUBS_TIME]           =  { &timefeed,             "Adafruit Time      ",  UNIT_TIME, 0.0, true, false, 60000, 0},
-  [AIO_SUBS_TRE_ID_TEMP]    =  { &tre_id_temp_feed,     "Tampere          OD",  UNIT_TEMPERATURE, 0.0, true, false, 120000, 0},
-  [AIO_SUBS_TRE_ID_HUM]     =  { &tre_id_hum_feed,      "Tampere          OD",  UNIT_HUMIDITY, 0.0, true, false, 300000, 0},
-  [AIO_SUBS_LA_ID_TEMP]     =  { &lilla_astrid_id_temp, "Lilla Astrid     ID",  UNIT_TEMPERATURE, 0.0, true, false, 120000, 0},
-  [AIO_SUBS_VA_OD_TEMP]     =  { &villa_astrid_od_temp, "Villa Astrid     OD",  UNIT_TEMPERATURE, 0.0,true, false, 60000, 0},
-  [AIO_SUBS_VA_OD_HUM]      =  { &villa_astrid_od_hum,  "Villa Astrid     OD",  UNIT_HUMIDITY, 0.0, true, false, 120000, 0},
-  [AIO_SUBS_RUUVI_E6_TEMP]  =  { &ruuvi_e6_temp,        "Ruuvi Tag E6       ",  UNIT_TEMPERATURE, 0.0, true, false, 60000, 0},
-  [AIO_SUBS_RUUVI_EA_TEMP]  =  { &ruuvi_ea_temp,        "Ruuvi Tag EA       ",  UNIT_TEMPERATURE, 0.0, true, false, 60000, 0},
-  [AIO_SUBS_RUUVI_ED_TEMP]  =  { &ruuvi_ed_temp,        "Ruuvi Tag ED       ",  UNIT_TEMPERATURE, 0.0, true, false, 60000, 0},
+  [AIO_SUBS_TIME]           =  { &timefeed,             "Adafruit Time      ",  UNIT_TIME, 0.0, 0, true, false, 60000, 0},
+  [AIO_SUBS_TRE_ID_TEMP]    =  { &tre_id_temp_feed,     "Tampere          OD",  UNIT_TEMPERATURE, 0.0, 1, true, false, 120000, 0},
+  [AIO_SUBS_TRE_ID_HUM]     =  { &tre_id_hum_feed,      "Tampere          OD",  UNIT_HUMIDITY, 0.0, 0, true, false, 300000, 0},
+  [AIO_SUBS_LA_ID_TEMP]     =  { &lilla_astrid_id_temp, "Lilla Astrid     ID",  UNIT_TEMPERATURE, 0.0, 1, true, false, 120000, 0},
+  [AIO_SUBS_VA_OD_TEMP]     =  { &villa_astrid_od_temp, "Villa Astrid     OD",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
+  [AIO_SUBS_VA_OD_HUM]      =  { &villa_astrid_od_hum,  "Villa Astrid     OD",  UNIT_HUMIDITY, 0.0, 0, true, false, 120000, 0},
+  [AIO_SUBS_VA_OD_LUX]      =  { &villa_astrid_od_lux,  "Villa Astrid     OD",  UNIT_LUX, 0.0, 0, true, false, 120000, 0},
+  [AIO_SUBS_WATER_TEMP]     =  { &dock_water_temp,      "Dock          Water",  UNIT_TEMPERATURE, 0.0, 1, true, false, 120000, 0},
+  [AIO_SUBS_RUUVI_E6_TEMP]  =  { &ruuvi_e6_temp,        "Ruuvi Tag E6       ",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
+  [AIO_SUBS_RUUVI_EA_TEMP]  =  { &ruuvi_ea_temp,        "Ruuvi Tag EA       ",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
+  [AIO_SUBS_RUUVI_ED_TEMP]  =  { &ruuvi_ed_temp,        "Ruuvi Tag ED       ",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
 };
 
 // Remember to set callbacks fo rnew feeds
@@ -206,6 +212,16 @@ void cb_villa_astrid_od_hum(double tmp)
     save_subs_float_data(AIO_SUBS_VA_OD_HUM);
 }
 
+void cb_villa_astrid_od_lux(double tmp)
+{
+    save_subs_float_data(AIO_SUBS_VA_OD_LUX);
+}
+
+void cb_dock_water_temp(double tmp)
+{
+    save_subs_float_data(AIO_SUBS_WATER_TEMP);
+}
+
 void cb_ruuvi_e6_temp(double tmp)
 {
     save_subs_float_data(AIO_SUBS_RUUVI_E6_TEMP);
@@ -272,6 +288,9 @@ void aio_mqtt_stm(void)
             subs_data[AIO_SUBS_LA_ID_TEMP].aio_subs->setCallback(cb_lilla_astrid_id_temp);
             subs_data[AIO_SUBS_VA_OD_TEMP].aio_subs->setCallback(cb_villa_astrid_od_temp);
             subs_data[AIO_SUBS_VA_OD_HUM].aio_subs->setCallback(cb_villa_astrid_od_temp);
+            subs_data[AIO_SUBS_VA_OD_LUX].aio_subs->setCallback(cb_villa_astrid_od_lux);
+            subs_data[AIO_SUBS_WATER_TEMP].aio_subs->setCallback(cb_dock_water_temp);
+
             subs_data[AIO_SUBS_RUUVI_E6_TEMP].aio_subs->setCallback(cb_ruuvi_e6_temp);
             subs_data[AIO_SUBS_RUUVI_EA_TEMP].aio_subs->setCallback(cb_ruuvi_ea_temp);
             subs_data[AIO_SUBS_RUUVI_ED_TEMP].aio_subs->setCallback(cb_ruuvi_ed_temp);

@@ -31,13 +31,15 @@ dashboard_ctrl_st dashboard_ctrl = {false, true, false, AIO_SUBS_TRE_ID_TEMP, 0}
 char unit_label[UNIT_NBR_OF][UNIT_LABEL_LEN] =
 {
   // 012345678
-    "Celsius ",
-    "%       ",
-    "kPa     ",
-    "Lux     ",
-    "LDR     ",
-    "V       "
+    [UNIT_TEMPERATURE] =    "Celsius ",
+    [UNIT_HUMIDITY] =       "%       ",
+    [UNIT_AIR_PRESSURE] =   "kPa     ",
+    [UNIT_LUX] =            "Lux     ",
+    [UNIT_LDR] =            "LDR     ",
+    [UNIT_VOLTAGE] =        "V       ",
+    [UNIT_TIME] =           "s       "
 };
+
 
 char measure_label[UNIT_NBR_OF][MEASURE_LABEL_LEN] =
 {
@@ -181,6 +183,7 @@ void dashboard_update_task(void)
     bool            update_box;
     String          Str;
     uint8_t         i; 
+    char            txt[20];
     
     switch (dashboard_task_handle.state)
     {
@@ -211,10 +214,32 @@ void dashboard_update_task(void)
                     Str += " ";
                     Str = unit_label[subs_data[i].unit_index];
                     tftx_set_string(&row_box[6],&Str);
-
-                    Str = String(subs_data[i].value);
-                    Serial.println(Str);
-                    tftx_set_string(&mid_box,&Str);
+                    switch(subs_data[i].unit_index)
+                    {
+                        case UNIT_TEMPERATURE:
+                            sprintf(txt," %.1f c",subs_data[i].value);
+                            break;
+                        case UNIT_HUMIDITY:
+                            sprintf(txt," %.0f%",subs_data[i].value);
+                            break;
+                        case UNIT_AIR_PRESSURE:
+                            sprintf(txt," %.0f",subs_data[i].value);
+                            break;
+                        case UNIT_LUX:
+                            sprintf(txt," %.0f",subs_data[i].value);
+                            break;
+                        case UNIT_LDR:
+                            sprintf(txt," %.0f",subs_data[i].value);
+                            break;
+                        case UNIT_VOLTAGE:
+                            sprintf(txt," %.0fV",subs_data[i].value);
+                            break;
+                        default:
+                            sprintf(txt,"Err");
+                            break;
+                    }
+                    Serial.println(txt);
+                    tftx_set_text(&mid_box,txt);
                     update_box = true;
                 }
                 subs_data[i].show_next_ms = millis() + subs_data[i].show_interval_ms;

@@ -1,6 +1,22 @@
-/***************************************************
+/******************************************************************************
+    T2504_ILI9341_4-BTN.ino
+    This code is implmenting a IOT monitor connected to my Adafruit IO feeds.
+    This appplcation is running on my own PCB with a Pi Pico W, a 2.8" TFT 
+    display and 4 keys for menu functions.  The PCB also includes a PCF8563 RTC.
+    I have not yet add/tested the SD card reader included with display module. 
+    I do not intend to use the touch screen functions on the display module.
+*******************************************************************************
+    In this application I am also testing a helper layer on top of the 
+    Adafruit_GFX library. I called this module tftx as my imagination was somewhat 
+    limited at the time I wrote the code. My plan is to use the tftx helper module 
+    also for other modules. I include more information in the tftx.cpp file
+*******************************************************************************
+
+
     -----------------------
     |  main ino           |
+    |          -----------|
+    |          |  menu    |
     -----------------------
     |  dashboard          |
     -----------------------
@@ -11,27 +27,21 @@
     |  Adafruit_ILI9341   |
     -----------------------
 
- ****************************************************/
+ *******************************************************************************/
+
 #include <Wire.h>
 #include <WiFi.h>
 #include "SPI.h"
-#include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
+#include "main.h"
+#include "atask.h"
+#include "secrets.h"
 #include "tftx.h"
 #include "dashboard.h"
-
-#include "main.h"
 #include "io.h"
 #include "menu.h"
-#include "Adafruit_MQTT.h"
-#include "Adafruit_MQTT_Client.h"
-#include "secrets.h"
-#include "RTClib.h"
 #include "time_func.h"
-#include "atask.h"
 #include "aio_mqtt.h"
 #include "log.h"
-#include "dashboard.h"
 
 
 void print_debug_task(void)

@@ -2,6 +2,20 @@
 #define __DASHBOARD_H__
 
 
+typedef enum
+{
+    UNIT_TEMPERATURE = 0,
+    UNIT_HUMIDITY,
+    UNIT_AIR_PRESSURE,
+    UNIT_LUX,
+    UNIT_LDR,
+    UNIT_VOLTAGE,
+    UNIT_TIME,
+    UNIT_NBR_OF
+} unit_et;
+
+
+
 void dashboard_initialize(void);
 
 void dashboard_start_task(void);

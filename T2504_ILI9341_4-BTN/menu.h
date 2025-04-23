@@ -34,7 +34,7 @@ typedef struct
 }  menu_row_st;
 
 void menu_initialize(void);
-void menu_draw(void);
+void menu_update(void);
 void menu_button_scan(void);
 char menu_read_button(void);
 void menu_btn_pressed(char pressed);

@@ -82,7 +82,7 @@ void menu_initialize(void)
 
   atask_add_new(&menu_key_task_handle);
   atask_add_new(&menu_key_scan_handle);
-  menu_draw();
+  menu_update();
 
 }
 
@@ -103,7 +103,7 @@ void menu_read_machine(void)
 
 }
 
-void menu_draw(void)
+void menu_update(void)
 {
     dashboard_set_menu_label(menu[menu_ctrl.active].row_label);
 
@@ -141,6 +141,6 @@ void menu_btn_pressed(char pressed)
         Serial.printf("active %d - pressed %d\n", menu_ctrl.active, bindx);
         menu[menu_ctrl.active].menu_item[bindx].cb_func();
         menu_ctrl.active = menu[menu_ctrl.active].menu_item[bindx].next;
-        menu_draw();
+        menu_update();
     }
 }
