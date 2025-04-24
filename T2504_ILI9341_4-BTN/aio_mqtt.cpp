@@ -256,14 +256,14 @@ void activate_subscriptions(void)
 
 void aio_mqtt_stm(void)
 {
-    if ( aio_mqtt_task.prev_state != aio_mqtt_task.state)
-    {
-        Serial.print(F("aio_mqtt_stm state= "));
-        Serial.print(aio_mqtt_task.prev_state);
-        Serial.print(F(" --> "));
-        Serial.println(aio_mqtt_task.state);
-        aio_mqtt_task.prev_state = aio_mqtt_task.state;
-    }
+    // if ( aio_mqtt_task.prev_state != aio_mqtt_task.state)
+    // {
+    //     Serial.print(F("aio_mqtt_stm state= "));
+    //     Serial.print(aio_mqtt_task.prev_state);
+    //     Serial.print(F(" --> "));
+    //     Serial.println(aio_mqtt_task.state);
+    //     aio_mqtt_task.prev_state = aio_mqtt_task.state;
+    // }
 
     switch(aio_mqtt_task.state)
     {

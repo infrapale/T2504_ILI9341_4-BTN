@@ -101,6 +101,11 @@ void tftx_initialize(void)
 {
   pinMode(TFT_LED, OUTPUT);  
   digitalWrite(TFT_LED, HIGH);
+  analogWriteFreq(1000);
+  //analogWriteRange(65535);
+  //analogWriteResolution(16)
+
+  analogWrite(TFT_LED, 64);
 
   tft.begin();
 
@@ -123,6 +128,7 @@ void tftx_initialize(void)
   display.height = tft.height();
   display.last_box = -1;
   display.tft_type = TFT_TYPE;
+  display.brightness = 3;
   Serial.printf("Screen size: %d x %d\n", display.width, display.height);
   
 
@@ -150,6 +156,11 @@ uint16_t tftx_get_height(void)
 uint32_t tftx_get_tft_type(void)
 {
   return display.tft_type;
+}
+
+void tftx_set_brightness(uint8_t pwm_value)
+{
+  display.brightness = pwm_value;
 }
 
 void tftx_add_box(box_st *box_ptr)
@@ -214,22 +225,33 @@ void tftx_update_boxes(void)
   {
     if (boxp[i])
     {
-      if (boxp[i]->update)
+      if ((boxp[i]->update) && (boxp[i]->update))
       {
         boxp[i]->update = false;
-        tftx_draw_box(boxp[i]);
+        //tftx_draw_box(boxp[i]);
         tft.setTextWrap(boxp[i]->txt_wrap);
         tftx_set_font(boxp[i]->font);
         tft.setTextSize(boxp[i]->txt_size);
         tft.setCursor(boxp[i]->x + 2, boxp[i]->y + font_voffs[boxp[i]->font] * (int16_t)boxp[i]->txt_size);
-        tft.setTextColor(boxp[i]->txt_color);
+        switch(display.brightness)
+        {
+          case 1:
+            tft.fillRect(boxp[i]->x, boxp[i]->y, boxp[i]->w, boxp[i]->h, COLOR_DARK1_FILL);
+            tft.drawRect(boxp[i]->x, boxp[i]->y, boxp[i]->w, boxp[i]->h, COLOR_DARK1_FRAME);
+            tft.setTextColor(COLOR_DARK1_TEXT);
+            break;
+          default:
+            tft.fillRect(boxp[i]->x, boxp[i]->y, boxp[i]->w, boxp[i]->h, boxp[i]->fill);
+            tft.drawRect(boxp[i]->x, boxp[i]->y, boxp[i]->w, boxp[i]->h, boxp[i]->frame);
+            tft.setTextColor(boxp[i]->txt_color);
+            break;
+        }
         tft.print(boxp[i]->text);
         //Serial.println(boxp[i]->text);
       }
     } 
   }
-  //tft.drawBitmap(80,120,test_bm,32,32,COLOR_WHITE);
-  //tftx_draw_box(&box_test);
+  analogWrite(TFT_LED, display.brightness);
 }
 
 void tftx_set_text(box_st *box_ptr, char *txt_ptr)

@@ -29,11 +29,16 @@
 
 #define COLOR_PINK      ((0x0F << 11) | (0x0F << 5) | (0x0F))
 #define COLOR_GREY      ((0x03 << 11) | (0x04 << 5) | (0x04))
+#define COLOR_GREY1     ((0x05 << 11) | (0x08 << 5) | (0x05))
 #define COLOR_DARK_GREY ((0x02 << 11) | (0x03 << 5) | (0x03))
 #define COLOR_TEAL      ((0x00 << 11) | (0x10 << 5) | (0x10))
 #define COLOR_DARK_RED  ((0x13UL << 11) | (0x00UL << 5) | (0x00UL))
 #define COLOR_DARK_RED2 ((0x0CUL << 11) | (0x00UL << 5) | (0x00UL))
 #define COLOR_DARK_BLUE ((0x00 << 11) | (0x00 << 5) | (0x0F))
+
+#define COLOR_DARK1_FRAME COLOR_GREY1 
+#define COLOR_DARK1_FILL  COLOR_BLACK
+#define COLOR_DARK1_TEXT  COLOR_GREY1 
 
 
 #define BOX_MAX_NBR_OF  16
@@ -59,11 +64,13 @@ typedef struct
   uint16_t  height;
   int8_t    last_box;
   uint32_t  tft_type;
+  uint8_t   brightness;
 } display_st;
 
 typedef struct
 {
   bool    update;
+  bool    active;
   int16_t x;
   int16_t y;
   int16_t w;
@@ -94,6 +101,8 @@ uint16_t tftx_get_width(void);
 uint16_t tftx_get_height(void);
 
 uint32_t tftx_get_tft_type(void);
+
+void tftx_set_brightness(uint8_t pwm_value);
 
 
 #endif

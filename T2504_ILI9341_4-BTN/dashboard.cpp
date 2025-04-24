@@ -54,77 +54,91 @@ char measure_label[UNIT_NBR_OF][MEASURE_LABEL_LEN] =
 
 
 void dashboard_update_task(void);
+void brightness_task(void);
 
 //                                          123456789012345   ival  next  state  prev  cntr flag  call backup
 atask_st dashboard_task_handle        =   {"Dashboard SM   ", 1000,   0,     0,  255,    0,   1,  dashboard_update_task };
+atask_st brightness_task_handle       =   {"Brigthness SM  ", 1000,   0,     0,  255,    0,   1,  brightness_task };
 
 extern value_st subs_data[AIO_SUBS_NBR_OF];
 
 void dashboard_start_task(void)
 {
     atask_add_new(&dashboard_task_handle);
+    atask_add_new(&brightness_task_handle);
 }
 
 void dashboard_initialize(void)
 {
-  char txt[40];
+    char txt[40];
 
-  for (uint8_t i = 0; i < MENU_BOX_NBR_OF; i++)
-  {
-    menu_box[i].update     = true;
-    menu_box[i].x          = i * tftx_get_width() / MENU_BOX_NBR_OF;
-    menu_box[i].y          = tftx_get_height() - BOX_HEIGHT_MENU;
-    menu_box[i].w          = tftx_get_width()/MENU_BOX_NBR_OF;
-    menu_box[i].h          = BOX_HEIGHT_MENU;
-    menu_box[i].frame      = COLOR_GREY;
-    menu_box[i].fill       = COLOR_TEAL;
-    menu_box[i].font       = FONT_SANS_12;
-    menu_box[i].txt_color  = COLOR_WHITE;
-    menu_box[i].txt_size   = 1;
-    tftx_add_box(&menu_box[i]);
-  }
-  strcpy(menu_box[0].text, "Menu0");
-  strcpy(menu_box[1].text, "Menu1");
-  strcpy(menu_box[2].text, "Menu2");
+    for (uint8_t i = 0; i < MENU_BOX_NBR_OF; i++)
+    {
+        menu_box[i].update     = true;
+        menu_box[i].active     = true;
+        menu_box[i].x          = i * tftx_get_width() / MENU_BOX_NBR_OF;
+        menu_box[i].y          = tftx_get_height() - BOX_HEIGHT_MENU;
+        menu_box[i].w          = tftx_get_width()/MENU_BOX_NBR_OF;
+        menu_box[i].h          = BOX_HEIGHT_MENU;
+        menu_box[i].frame      = COLOR_GREY;
+        menu_box[i].fill       = COLOR_TEAL;
+        menu_box[i].font       = FONT_SANS_12;
+        menu_box[i].txt_color  = COLOR_WHITE;
+        menu_box[i].txt_size   = 1;
+        tftx_add_box(&menu_box[i]);
+    }
+    strcpy(menu_box[0].text, "Menu0");
+    strcpy(menu_box[1].text, "Menu1");
+    strcpy(menu_box[2].text, "Menu2");
   
-  for (uint8_t i = 0; i < ROW_BOX_NBR_OF; i++)
-  {
-    row_box[i].update     = true;
-    row_box[i].x          = 0;
-    row_box[i].y          = i*BOX_HEIGHT_ROW ;
-    row_box[i].w          = tftx_get_width();
-    row_box[i].h          = BOX_HEIGHT_ROW ;
-    row_box[i].frame      = COLOR_GREY;
-    row_box[i].fill       = COLOR_BLUE;
-    row_box[i].font       = FONT_SANS_12;
-    row_box[i].txt_color  = COLOR_WHITE;
-    row_box[i].txt_size   = 1;
-    sprintf(txt,"Row %d",i);
-    strcpy(row_box[i].text, txt);
-    tftx_add_box(&row_box[i]);
-  }
-  row_box[ROW_BOX_NBR_OF -1].update = false;
-  row_box[0].frame      = COLOR_GREY;
-  row_box[0].fill       = COLOR_DARK_RED2;
-  row_box[0].txt_color  = COLOR_WHITE;
-  row_box[1].fill       = COLOR_DARK_RED;
-  row_box[6].fill       = COLOR_DARK_RED;
-  sprintf(txt, "%s", APP_NAME);
-  tftx_set_text(&row_box[0], txt);
+    for (uint8_t i = 0; i < ROW_BOX_NBR_OF; i++)
+    {
+        row_box[i].update     = true;
+        row_box[i].active     = true;
+        row_box[i].x          = 0;
+        row_box[i].y          = i*BOX_HEIGHT_ROW ;
+        row_box[i].w          = tftx_get_width();
+        row_box[i].h          = BOX_HEIGHT_ROW ;
+        row_box[i].frame      = COLOR_GREY;
+        row_box[i].fill       = COLOR_BLUE;
+        row_box[i].font       = FONT_SANS_12;
+        row_box[i].txt_color  = COLOR_WHITE;
+        row_box[i].txt_size   = 1;
+        sprintf(txt,"Row %d",i);
+        strcpy(row_box[i].text, txt);
+        tftx_add_box(&row_box[i]);
+    }
+    // blocking mid large area
+    for (uint8_t i = 2; i < 6; i++)
+    {
+        row_box[i].active = false;
+        row_box[i].update = false;
+    }
+    // blocking menu row    
+    row_box[ROW_BOX_NBR_OF -1].active = false;
+    row_box[ROW_BOX_NBR_OF -1].update = false;
+    row_box[0].frame      = COLOR_GREY;
+    row_box[0].fill       = COLOR_DARK_RED2;
+    row_box[0].txt_color  = COLOR_WHITE;
+    row_box[1].fill       = COLOR_DARK_RED;
+    row_box[6].fill       = COLOR_DARK_RED;
+    sprintf(txt, "%s", APP_NAME);
+    tftx_set_text(&row_box[0], txt);
 
 
-  mid_box.update = true;
-  mid_box.x = 0;
-  mid_box.y = row_box[2].y;
-  mid_box.w = tftx_get_width();
-  mid_box.h = row_box[0].h * 4;
-  mid_box.frame = COLOR_YELLOW;
-  mid_box.fill =  COLOR_DARK_GREY;
-  mid_box.font = FONT_SANS_24;
-  mid_box.txt_color = COLOR_YELLOW;
-  mid_box.txt_size = 2;
-  strcpy(mid_box.text, " 12:34");
-  tftx_add_box(&mid_box); 
+    mid_box.update = true;
+    mid_box.update = true;
+    mid_box.x = 0;
+    mid_box.y = row_box[2].y;
+    mid_box.w = tftx_get_width();
+    mid_box.h = row_box[0].h * 4;
+    mid_box.frame = COLOR_YELLOW;
+    mid_box.fill =  COLOR_DARK_GREY;
+    mid_box.font = FONT_SANS_24;
+    mid_box.txt_color = COLOR_YELLOW;
+    mid_box.txt_size = 2;
+    strcpy(mid_box.text, " 12:34");
+    tftx_add_box(&mid_box); 
 }
 
 void dashboard_set_menu_label(char *label)
@@ -271,6 +285,45 @@ void dashboard_update_task(void)
     }
     //Serial.printf("db %d -> %d\n", dashboard_task_handle.prev_state, dashboard_task_handle.state);
     tftx_update_boxes();
+}
+
+void brightness_task(void)
+{
+    static uint32_t timeout_ms;
+    uint16_t ldr_value;
+
+    ldr_value = io_read_ldr();
+    uint16_t pwm = map(ldr_value,0,3500,1,64);
+    if (pwm > 64) pwm = 64;
+    pwm = (pwm*pwm)/16;
+    if (pwm > 255) pwm = 255;
+    Serial.printf("PWM=%d\n",pwm);
+
+    switch(brightness_task_handle.state)
+    {
+        case 0:
+            brightness_task_handle.state = 10;
+            tftx_set_brightness(8);
+            break;
+        case 10:
+            if (io_read_pir())
+            {
+                timeout_ms = millis() + 30000;
+                tftx_set_brightness((uint8_t) pwm);
+                //tftx_set_brightness(255);
+                brightness_task_handle.state = 100;
+            }
+        case 100:
+            if ( millis() > timeout_ms)
+            {
+                if (!io_read_pir())
+                {
+                    tftx_set_brightness(4);
+                    brightness_task_handle.state = 10;
+                }
+                else tftx_set_brightness((uint8_t) pwm);
+            }
+    }
 }
 
 void dashboard_next_sensor(void)
