@@ -72,6 +72,7 @@ An example how the display can be divided
 #include <SPI.h>
 #include "font72.h"
 #include "main.h"
+#include "io.h"
 
 #if TFT_TYPE == ILI9341
   Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC,TFT_RST);
@@ -128,7 +129,7 @@ void tftx_initialize(void)
   display.height = tft.height();
   display.last_box = -1;
   display.tft_type = TFT_TYPE;
-  display.brightness = 3;
+  display.brightness = 4;
   Serial.printf("Screen size: %d x %d\n", display.width, display.height);
   
 
@@ -233,9 +234,9 @@ void tftx_update_boxes(void)
         tftx_set_font(boxp[i]->font);
         tft.setTextSize(boxp[i]->txt_size);
         tft.setCursor(boxp[i]->x + 2, boxp[i]->y + font_voffs[boxp[i]->font] * (int16_t)boxp[i]->txt_size);
-        switch(display.brightness)
+        switch(1)     //(display.brightness)
         {
-          case 1:
+          case 0:
             tft.fillRect(boxp[i]->x, boxp[i]->y, boxp[i]->w, boxp[i]->h, COLOR_DARK1_FILL);
             tft.drawRect(boxp[i]->x, boxp[i]->y, boxp[i]->w, boxp[i]->h, COLOR_DARK1_FRAME);
             tft.setTextColor(COLOR_DARK1_TEXT);

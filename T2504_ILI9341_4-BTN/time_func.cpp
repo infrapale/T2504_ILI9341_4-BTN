@@ -111,6 +111,32 @@ uint32_t time_get_epoc_time(void)
     return now.unixtime();
 }
 
+void rtc_time_get_stamp(char *stamp_str)
+{
+  DateTime now = rtc.now();
+  sprintf(stamp_str,"%4d-%02d-%02d %02d:%02d:%02d",
+      now.year(),
+      now.month(),
+      now.day(),
+      now.hour(),
+      now.minute(),
+      now.second()
+    );
+}
+
+void rtc_time_get_date_str(char *date_str)
+{
+  DateTime now = rtc.now();
+  sprintf(date_str,"%4d%02d%02d",
+      now.year(),
+      now.month(),
+      now.day()
+    );
+}
+
+
+
+
 void time_set_epoc_time(uint32_t epoc_time)
 {
     const DateTime now =epoc_time;

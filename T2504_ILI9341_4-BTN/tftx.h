@@ -9,10 +9,6 @@
 
 #include <Arduino.h>
 
-#define TFT_DC    15
-#define TFT_CS    9
-#define TFT_RST   14
-#define TFT_LED   10 
 
 #define TXT_LEN   40
 

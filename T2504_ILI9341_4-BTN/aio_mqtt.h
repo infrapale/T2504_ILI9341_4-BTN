@@ -1,7 +1,7 @@
 #ifndef __AIO_MQTT_H__
 #define __AIO_MQTT_H__
 
-#define   LOCATION_LABEL_LEN   20
+#define   LOCATION_LABEL_LEN   10
 #include "Adafruit_MQTT.h"
 
 typedef enum 
@@ -38,6 +38,7 @@ typedef struct
   uint8_t                 decimals;
   bool                    active;
   bool                    updated;
+  bool                    logged;
   uint32_t                show_interval_ms;
   uint32_t                show_next_ms;
 } value_st;

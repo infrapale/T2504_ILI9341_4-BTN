@@ -86,18 +86,18 @@ Adafruit_MQTT_Publish *aio_publ[AIO_PUBL_NBR_OF] =
 };
 
 value_st subs_data[AIO_SUBS_NBR_OF]
-{  //                                                     1234567890123456789
-  [AIO_SUBS_TIME]           =  { &timefeed,             "Adafruit Time      ",  UNIT_TIME, 0.0, 0, true, false, 60000, 0},
-  [AIO_SUBS_TRE_ID_TEMP]    =  { &tre_id_temp_feed,     "Tampere          OD",  UNIT_TEMPERATURE, 0.0, 1, true, false, 120000, 0},
-  [AIO_SUBS_TRE_ID_HUM]     =  { &tre_id_hum_feed,      "Tampere          OD",  UNIT_HUMIDITY, 0.0, 0, true, false, 300000, 0},
-  [AIO_SUBS_LA_ID_TEMP]     =  { &lilla_astrid_id_temp, "Lilla Astrid     ID",  UNIT_TEMPERATURE, 0.0, 1, true, false, 120000, 0},
-  [AIO_SUBS_VA_OD_TEMP]     =  { &villa_astrid_od_temp, "Villa Astrid     OD",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
-  [AIO_SUBS_VA_OD_HUM]      =  { &villa_astrid_od_hum,  "Villa Astrid     OD",  UNIT_HUMIDITY, 0.0, 0, true, false, 120000, 0},
-  [AIO_SUBS_VA_OD_LUX]      =  { &villa_astrid_od_lux,  "Villa Astrid     OD",  UNIT_LUX, 0.0, 0, true, false, 120000, 0},
-  [AIO_SUBS_WATER_TEMP]     =  { &dock_water_temp,      "Dock          Water",  UNIT_TEMPERATURE, 0.0, 1, true, false, 120000, 0},
-  [AIO_SUBS_RUUVI_E6_TEMP]  =  { &ruuvi_e6_temp,        "Ruuvi Tag E6       ",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
-  [AIO_SUBS_RUUVI_EA_TEMP]  =  { &ruuvi_ea_temp,        "Ruuvi Tag EA       ",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
-  [AIO_SUBS_RUUVI_ED_TEMP]  =  { &ruuvi_ed_temp,        "Ruuvi Tag ED       ",  UNIT_TEMPERATURE, 0.0, 1, true, false, 60000, 0},
+{  //                                                    1234567890   Unit Index         value d  active  updated looged  ival    next
+  [AIO_SUBS_TIME]           =  { &timefeed,             "AIO Time ",  UNIT_TIME,          0.0, 0, true,   false,  true,   60000,  0},
+  [AIO_SUBS_TRE_ID_TEMP]    =  { &tre_id_temp_feed,     "Tre OD   ",  UNIT_TEMPERATURE,   0.0, 1, true,   false,  true,   120000, 0},
+  [AIO_SUBS_TRE_ID_HUM]     =  { &tre_id_hum_feed,      "Tre OD   ",  UNIT_HUMIDITY,      0.0, 0, true,   false,  true,   300000, 0},
+  [AIO_SUBS_LA_ID_TEMP]     =  { &lilla_astrid_id_temp, "LA  ID   ",  UNIT_TEMPERATURE,   0.0, 1, true,   false,  true,   120000, 0},
+  [AIO_SUBS_VA_OD_TEMP]     =  { &villa_astrid_od_temp, "VA  OD   ",  UNIT_TEMPERATURE,   0.0, 1, true,   false,  true,   60000,  0},
+  [AIO_SUBS_VA_OD_HUM]      =  { &villa_astrid_od_hum,  "VA  OD   ",  UNIT_HUMIDITY,      0.0, 0, true,   false,  true,   120000, 0},
+  [AIO_SUBS_VA_OD_LUX]      =  { &villa_astrid_od_lux,  "VA  OD   ",  UNIT_LUX,           0.0, 0, true,   false,  true,   120000, 0},
+  [AIO_SUBS_WATER_TEMP]     =  { &dock_water_temp,      "Water    ",  UNIT_TEMPERATURE,   0.0, 1, true,   false,  true,   120000, 0},
+  [AIO_SUBS_RUUVI_E6_TEMP]  =  { &ruuvi_e6_temp,        "VA MH1   ",  UNIT_TEMPERATURE,   0.0, 1, true,   false,  true,   60000,  0},
+  [AIO_SUBS_RUUVI_EA_TEMP]  =  { &ruuvi_ea_temp,        "VA KHH   ",  UNIT_TEMPERATURE,   0.0, 1, true,   false,  true,   60000,  0},
+  [AIO_SUBS_RUUVI_ED_TEMP]  =  { &ruuvi_ed_temp,        "VA Parv  ",  UNIT_TEMPERATURE,   0.0, 1, true,   false,  true,   60000,  0},
 };
 
 // Remember to set callbacks fo rnew feeds
@@ -164,6 +164,7 @@ void save_subs_float_data(uint8_t subs_indx)
     subs_data[subs_indx].value = f_str.toFloat();
     //Serial.print("float= "); Serial.print(f_str); Serial.print(" -> "); Serial.println(subs_data[subs_indx].value);
     subs_data[subs_indx].updated = true;
+    subs_data[subs_indx].logged = false;
     print_subs_data(subs_indx);
 }
 

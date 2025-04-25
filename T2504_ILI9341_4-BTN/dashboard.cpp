@@ -222,12 +222,10 @@ void dashboard_update_task(void)
                     Serial.print("aio index: "); Serial.print(i); 
                     Serial.println(" = Updated ");
                     Str = subs_data[i].location;
+                    Str += " ";
+                    Str += measure_label[subs_data[i].unit_index];
                     tftx_set_string(&row_box[1],&Str);
 
-                    Str = measure_label[subs_data[i].unit_index];
-                    Str += " ";
-                    Str = unit_label[subs_data[i].unit_index];
-                    tftx_set_string(&row_box[6],&Str);
                     switch(subs_data[i].unit_index)
                     {
                         case UNIT_TEMPERATURE:
@@ -293,11 +291,12 @@ void brightness_task(void)
     uint16_t ldr_value;
 
     ldr_value = io_read_ldr();
-    uint16_t pwm = map(ldr_value,0,3500,1,64);
+    uint16_t pwm = map(ldr_value,0,3500,2,64);
     if (pwm > 64) pwm = 64;
     pwm = (pwm*pwm)/16;
     if (pwm > 255) pwm = 255;
-    Serial.printf("PWM=%d\n",pwm);
+    if (pwm == 0) pwm = 4;
+    //Serial.printf("PWM=%d\n",pwm);
 
     switch(brightness_task_handle.state)
     {

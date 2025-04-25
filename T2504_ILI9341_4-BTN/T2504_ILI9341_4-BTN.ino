@@ -42,7 +42,7 @@
 #include "menu.h"
 #include "time_func.h"
 #include "aio_mqtt.h"
-#include "log.h"
+#include "logger.h"
 
 
 void print_debug_task(void)
@@ -64,6 +64,8 @@ void setup() {
   Serial.print(__DATE__); Serial.print(" ");
   Serial.print(__TIME__); Serial.println();
   io_initialize();
+  atask_initialize();
+  logger_initialize(); 
   tftx_initialize();
   dashboard_initialize();
   tftx_update_boxes(); 
@@ -73,13 +75,12 @@ void setup() {
   Wire.begin();
   time_begin();
   
-  atask_initialize();
   atask_add_new(&debug_task_handle);
   dashboard_start_task();
 
   menu_initialize();        // starting scan and read tasks
   aio_mqtt_initialize();    // task is stopped - for debug purpose only
- 
+  logger_do_log();
 }
 
 void setup1()

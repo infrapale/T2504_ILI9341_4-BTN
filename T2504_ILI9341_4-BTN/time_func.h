@@ -15,4 +15,8 @@ void time_set_epoc_time(uint32_t epoc_time);
 void time_to_string(String *Str);
 void time_print(void);
 
+void rtc_time_get_stamp(char *stamp_str);
+void rtc_time_get_date_str(char *date_str);
+
+
 #endif
